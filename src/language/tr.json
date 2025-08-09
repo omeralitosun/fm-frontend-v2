@@ -1,0 +1,11 @@
+{
+    "homepage": "Ana Sayfa",
+    "equipmentType": "Ekipman Türü",
+    "equipment": "Ekipman",
+    "action": "İşlem",
+    "delete": "Sil",
+    "detail": "Detay",
+    "maintenanceType": "Bakım Türü",
+    "cost": "Maliyet",
+    "date": "Tarih"
+}
