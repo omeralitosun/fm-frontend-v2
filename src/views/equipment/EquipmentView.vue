@@ -9,7 +9,6 @@ import InputText from 'primevue/inputtext';
 import Button from "primevue/button";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import { CreateEquipment } from '@/model/equipment/CreateEquipment';
 import type { EquipmentType } from '@/constants/EquipmentType';
 import Select from 'primevue/select';
 import ListMaintenanceView from "../maintenance/ListMaintenanceView.vue";
@@ -46,9 +45,7 @@ async function fetchEquipment(id: string) {
         if (equipmentType.value) {
             equipment.value.equipmentType = equipmentType.value.label;
         }
-        console.log('Ekipman yüklendi:' + equipment.value);
     } catch (error) {
-        console.error('Ekipman verisi alınamadı:', error);
 
     } finally {
         loading.value = false;
@@ -71,7 +68,6 @@ async function deleteEquipment(id: string) {
 }
 
 const confirmDelete = (id: string) => {
-    console.log("confirmDelete called");
     confirm.require({
         message: 'Silmek istediğinize emin misiniz? Bu işlem geri alinamaz!',
         header: 'Dikkat!',
@@ -98,7 +94,6 @@ const confirmDelete = (id: string) => {
 };
 
 const confirmUpdateEquipment = (id: string) => {
-    console.log("confirmDelete called");
     confirm.require({
         message: 'Güncellemek istediğinize emin misiniz? Bu işlem geri alinamaz!',
         header: 'Dikkat!',
@@ -125,18 +120,15 @@ const confirmUpdateEquipment = (id: string) => {
 async function updateEquipment(id: string) {
     loading.value = true;
     try {
-        let createEquipment: CreateEquipment = new CreateEquipment();
         if (!equipment.value?.name || !equipmentType.value) {
             toast.add({ severity: 'warn', summary: 'Zorunlu', detail: 'Ekipman adı ve tipi zorunludur', life: 1500, group: 'top-center' });
             return;
         }
 
-        createEquipment.name = equipment.value.name;
-        createEquipment.equipmentType = equipmentType.value.key;
+        equipment.value.name = equipment.value.name;
+        equipment.value.equipmentType = equipmentType.value.key;
 
-        console.log("Adding equipment:", createEquipment);
-        const response = await equipmentService.updateEquipment(id, createEquipment);
-        console.log(response.data);
+        const response = await equipmentService.updateEquipment(id, equipment.value);
     } catch (error) {
         console.error("Error adding equipment:", error);
     } finally {
@@ -172,15 +164,14 @@ async function updateEquipment(id: string) {
             </div>
             <div class="w-full md:w-52 mb-5">
                 <FloatLabel variant="on">
-                    <InputText v-if="!isEditable" id="equipmentName" v-model='equipment.equipmentType' class="w-full"
+                    <InputText v-if="!isEditable" id="equipmentType" v-model='equipment.equipmentType' class="w-full"
                         style="color: oklch(69.6% 0.17 162.48);" :disabled="!isEditable" />
-                    <label for="equipmentName">Ekipman Adı</label>
                     <Select v-if="isEditable" v-model="equipmentType" inputId="equipmentType"
                         :options="equipmentService.getEquipmentTypes()" optionLabel="label" class="w-full"
                         :disabled="!isEditable">
                         <template></template>
                     </Select>
-                    <label for="equipmentName">Ekipman Tipi</label>
+                    <label for="equipmentType">Ekipman Tipi</label>
                 </FloatLabel>
             </div>
         </div>

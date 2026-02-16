@@ -61,15 +61,101 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/maintenance/CreateMaintenanceView.vue'),
     },
+    //Field
     {
-      path: '/equipment/:id',
-      name: 'equipment',
+      path: '/field/create',
+      name: 'createField',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/equipment/EquipmentView.vue'),
+      component: () => import('../views/field/CreateFieldView.vue'),
+    },
+    {
+      path: '/field',
+      name: 'fieldList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/field/ListFieldView.vue'),
+    },
+    {
+      path: '/field/:id',
+      name: 'field',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/field/FieldView.vue'),
       props: true
     },
+    // Received Product
+    {
+      path: '/received-product/create',
+      name: 'createReceivedProduct',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/receivedproduct/CreateReceivedProductView.vue'),
+    },
+    {
+      path: '/received-product',
+      name: 'receivedProductList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/receivedproduct/ListReceivedProductView.vue'),
+    },
+    // Action Taken
+    {
+      path: '/action-taken',
+      name: 'actionTakenList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/actiontaken/ListActionTakenView.vue'),
+    },
+    {
+      path: '/action-taken/create',
+      name: 'createActionTaken',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/actiontaken/CreateActionTakenView.vue'),
+    },
+    // Selled Product
+    {
+      path: '/selled-product',
+      name: 'selledProductList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/selledproduct/ListSelledProductView.vue'),
+    },
+    {
+      path: '/selled-product/create',
+      name: 'createSelledProduct',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/selledproduct/CreateSelledProductView.vue'),
+    },
+    // Error Page
+    {
+      path: '/error-page',
+      name: 'errorPage',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ErrorView.vue'),
+    },
+    // Inventory
+    {
+      path: '/inventory',
+      name: 'inventoryList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/inventory/ListInventoryView.vue'),
+    }
   ],
 })
 

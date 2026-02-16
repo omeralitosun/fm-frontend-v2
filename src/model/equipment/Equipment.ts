@@ -1,5 +1,5 @@
 export class Equipment{
-    id!: string;
+    id!: number;
     name!: string;
     equipmentType!: string;
 }

@@ -2,6 +2,9 @@
 import MainView from './views/MainView.vue';
 import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
+import { useToast } from 'primevue/usetoast'
+
+window.$toast = useToast()
 
 </script>
 

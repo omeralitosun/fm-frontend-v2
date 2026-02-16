@@ -3,7 +3,7 @@ import axios, { type AxiosResponse } from "axios";
 import { Equipment } from '@/model/equipment/Equipment';
 import type { IEquipmentService } from '@/service/IEquipmentService';
 import { EquipmentType } from '@/constants/EquipmentType';
-import type { CreateEquipment } from '@/model/equipment/CreateEquipment';
+import { GetAllEquipmentDTO } from '@/model/dto/GetAllEquipmentDTO';
 
 @Service()
 export class EquipmentService implements IEquipmentService {
@@ -12,12 +12,14 @@ export class EquipmentService implements IEquipmentService {
     apiUrl = import.meta.env.VITE_SERVICE_URL;
     apiEquipmentURL = this.apiUrl + "/api/v1/equipment"
 
-    async getAllEquipment(page: number, rows: number): Promise<Equipment[]> {
+    async getAllEquipment(page: number, rows: number): Promise<GetAllEquipmentDTO> {
         let pathVariable = this.apiEquipmentURL + "?page=" + page + "&rows=" + rows;
         const response = await axios.get(pathVariable);
 
+        const getAllEquipmentDTO = new GetAllEquipmentDTO();
 
-        return response.data.map((item: any) => {
+        getAllEquipmentDTO.totalElements = response.data.totalElements;
+        getAllEquipmentDTO.equipments = response.data.equipments.map((item: any) => {
             const equipment = new Equipment();
             const type = this.getEquipmentTypeByKey(item.equipmentType);
 
@@ -28,7 +30,9 @@ export class EquipmentService implements IEquipmentService {
             equipment.name = item.name;
 
             return equipment;
-        });
+        })
+
+        return getAllEquipmentDTO;
     }
 
     async deleteEquipment(id: string): Promise<void> {
@@ -40,7 +44,7 @@ export class EquipmentService implements IEquipmentService {
         return EquipmentType.values();
     };
 
-    async addEquipment(equipment: CreateEquipment): Promise<AxiosResponse<any, any>> {
+    async addEquipment(equipment: Equipment): Promise<AxiosResponse<any, any>> {
         let pathVariable = this.apiEquipmentURL;
         return await axios.post(pathVariable, equipment);
     }
@@ -56,11 +60,12 @@ export class EquipmentService implements IEquipmentService {
 
         return equipment;
     }
+    
     getEquipmentTypeByKey(key: string): EquipmentType | undefined {
         return EquipmentType.getEquipmentTypeByKey(key);
     }
 
-    async updateEquipment(id: string, equipment: CreateEquipment): Promise<AxiosResponse<any, any>> {
+    async updateEquipment(id: string, equipment: Equipment): Promise<AxiosResponse<any, any>> {
         let pathVariable = this.apiEquipmentURL + "/" + id;
         return await axios.put(pathVariable, equipment);
     }

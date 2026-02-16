@@ -10,11 +10,12 @@ import { ServiceController } from "@/service/ServiceController";
 import { useI18n } from 'vue-i18n';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+import type { GetAllEquipmentDTO } from "@/model/dto/GetAllEquipmentDTO";
 
 const equipmentService: IEquipmentService = ServiceController.getEquipmentService();
 const properties = useI18n();
 
-const equipments = ref<Equipment[]>([]);
+const getAllEquipmentDto = ref<GetAllEquipmentDTO>();
 
 const rows = ref(10);
 const page = ref(0);
@@ -43,7 +44,8 @@ async function deleteEquipment(id: string) {
 
 async function fetchEquipments() {
   loading.value = true;
-  equipments.value = await equipmentService.getAllEquipment(page.value, rows.value);
+  getAllEquipmentDto.value = await equipmentService.getAllEquipment(page.value, rows.value);
+  console.log(getAllEquipmentDto.value);
   loading.value = false;
 };
 
@@ -78,7 +80,7 @@ const confirmDelete = (id: string) => {
     <div class="">
       <Button label="Yeni Ekipman" icon="pi pi-plus" class="mb-4" severity="success"
         @click="$router.push('/equipment/create')" />
-      <DataTable :value="equipments" stripedRows :loading="loading">
+      <DataTable :value="getAllEquipmentDto?.equipments" stripedRows :loading="loading">
         <Column field="name" :header="properties.t('equipment')"></Column>
         <Column field="equipmentType" :header="properties.t('equipmentType')"></Column>
         <Column class="w-29 !text-end" :header="properties.t('action')">
@@ -88,7 +90,7 @@ const confirmDelete = (id: string) => {
           </template>
         </Column>
       </DataTable>
-      <Paginator :rows="rows" @page="onPageChange" :totalRecords="150" :rowsPerPageOptions="[10, 20, 30]" />
+      <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllEquipmentDto?.totalElements" :rowsPerPageOptions="[10, 20, 30]" />
     </div>
   </div>
 </template>

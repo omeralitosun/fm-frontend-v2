@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { FloatLabel } from 'primevue';
-import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import type { IEquipmentService } from "@/service/IEquipmentService";
 import { ServiceController } from "@/service/ServiceController";
 import Button from 'primevue/button';
 import { ref, onMounted } from 'vue';
-import { CreateEquipment } from '@/model/equipment/CreateEquipment';
 import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
 import { Equipment } from '@/model/equipment/Equipment';
@@ -30,13 +28,16 @@ const equipment = ref<Equipment>();
 const maintenanceType = ref<MaintenanceType>();
 const maintenance = new Maintenance();
 
+let rowSize = 5;
+let productTypeFilterValue = '';
+
 onMounted(async () => {
     fetchEquipments();
 });
 
 async function fetchEquipments() {
     loading.value = true;
-    equipments.value = await equipmentService.getAllEquipment(0, 0);
+    equipments.value = (await equipmentService.getAllEquipment(0, rowSize)).equipments;
     loading.value = false;
 };
 
@@ -56,18 +57,30 @@ async function confirmAddEquipment() {
         createMaintenance.cost = maintenance.cost;
         createMaintenance.comment = maintenance.comment;
 
-        console.log("Adding equipment:", createMaintenance);
         const response = await maintenanceService.addMaintenance(createMaintenance);
-        console.log(response.data);
+
         toast.add({ severity: 'success', summary: 'Başarılı', detail: 'Ekipman bakımı başarıyla eklendi.', life: 3000 });
 
-        await $router.push('/maintenance/' + response.data.id);
+        await $router.push('/equipment/' + createMaintenance.equipmentId);
     } catch (error) {
         console.error("Error adding equipment:", error);
     } finally {
         loading.value = false;
     }
 
+}
+
+async function onEquipmentScroll(event: { first: number; last: number; }) {
+    if ((event.last % rowSize) === 0 && event.last >= equipments.value.length) {
+        const moreEquipments = await equipmentService.getAllEquipment(event.last / rowSize, rowSize);
+        equipments.value = [...equipments.value, ...moreEquipments.equipments];
+    }
+}
+
+async function onEquipmentFilter(event: { value: string; }) {
+    productTypeFilterValue = event.value;
+    fetchEquipments();
+    loading.value = false;
 }
 
 </script>
@@ -85,7 +98,11 @@ async function confirmAddEquipment() {
             <div class="w-full md:w-52 mb-5">
                 <FloatLabel variant="on">
                     <Select v-model="equipment" inputId="equipment" :options="equipments" optionLabel="name"
-                        class="w-full">
+                        class="w-full" :virtualScrollerOptions="{
+                            itemSize: 38,
+                            lazy: true,
+                            onLazyLoad: onEquipmentScroll
+                        }" :filter="true" filterPlaceholder="Ekipman ara..." @filter="onEquipmentFilter">
                         <template #footer>
                             <div class="p-3">
                                 <Button label="Yeni Ekipman" fluid severity="secondary" variant="text" size="small"

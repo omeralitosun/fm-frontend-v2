@@ -4,6 +4,7 @@ import type { IMaintenanceService } from '../IMaintenanceService';
 import { Maintenance } from '@/model/maintenance/Maintenance';
 import { MaintenanceType } from '@/constants/MaintenanceType';
 import { CreateMaintenance } from '@/model/maintenance/CreateMaintenance';
+import { GetAllMaintenanceDTO } from '@/model/dto/GetAllMaintenanceDTO';
 
 @Service()
 export class MaintenanceService implements IMaintenanceService {
@@ -11,11 +12,14 @@ export class MaintenanceService implements IMaintenanceService {
     apiUrl = import.meta.env.VITE_SERVICE_URL;
     apiMaintenanceURL = this.apiUrl + "/api/v1/maintenance"
 
-    async getAllMaintenance(page: number, rows: number): Promise<Maintenance[]> {
+    async getAllMaintenance(page: number, rows: number): Promise<GetAllMaintenanceDTO> {
         let pathVariable = this.apiMaintenanceURL + "?page=" + page + "&rows=" + rows;
         const response = await axios.get(pathVariable);
 
-        return response.data.map((item: any) => {
+        const getAllMaintenanceDTO = new GetAllMaintenanceDTO();
+
+        getAllMaintenanceDTO.totalElements = response.data.totalElements;
+        getAllMaintenanceDTO.maintenances = response.data.maintenances.map((item: any) => {
             const maintenance = new Maintenance();
             const type = this.getMaintenanceTypeByKey(item.maintenanceType);
 
@@ -31,6 +35,7 @@ export class MaintenanceService implements IMaintenanceService {
 
             return maintenance;
         });
+        return getAllMaintenanceDTO;
     }
 
     async deleteMaintenance(id: string): Promise<void> {
@@ -47,12 +52,14 @@ export class MaintenanceService implements IMaintenanceService {
         return await axios.post(pathVariable, maintenance);
     }
 
-    async getAllMaintenanceByEquipmentId(equipmentId: string, page: number, rows: number): Promise<Maintenance[]> {
+    async getAllMaintenanceByEquipmentId(equipmentId: string, page: number, rows: number): Promise<GetAllMaintenanceDTO> {
         let pathVariable = this.apiMaintenanceURL + "/equipment/" + equipmentId + "?page=" + page + "&rows=" + rows;
         const response = await axios.get(pathVariable);
 
+        const getAllMaintenanceDTO = new GetAllMaintenanceDTO();
 
-        return response.data.map((item: any) => {
+        getAllMaintenanceDTO.totalElements = response.data.totalElements;
+        getAllMaintenanceDTO.maintenances = response.data.maintenances.map((item: any) => {
             const maintenance = new Maintenance();
             const type = this.getMaintenanceTypeByKey(item.maintenanceType);
 
@@ -68,6 +75,7 @@ export class MaintenanceService implements IMaintenanceService {
 
             return maintenance;
         });
+        return getAllMaintenanceDTO;
     }
 
     getMaintenanceTypeByKey(key: string): MaintenanceType | undefined {

@@ -6,7 +6,7 @@ import type { IEquipmentService } from "@/service/IEquipmentService";
 import { ServiceController } from "@/service/ServiceController";
 import Button from 'primevue/button';
 import { ref } from 'vue';
-import { CreateEquipment } from '@/model/equipment/CreateEquipment';
+import { Equipment } from '@/model/equipment/Equipment';
 import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
 import type { EquipmentType } from '@/constants/EquipmentType';
@@ -22,18 +22,17 @@ const equipmentType = ref<EquipmentType>();
 async function confirmAddEquipment() {
     loading.value = true;
     try {
-        let createEquipment: CreateEquipment = new CreateEquipment();
+        let equipment: Equipment = new Equipment();
         if (!equipmentName.value || !equipmentType.value) {
             toast.add({ severity: 'warn', summary: 'Zorunlu', detail: 'Ekipman adı ve tipi zorunludur', life: 1500, group: 'top-center' });
             return;
         }
 
-        createEquipment.name = equipmentName.value;
-        createEquipment.equipmentType = equipmentType.value.key;
+        equipment.name = equipmentName.value;
+        equipment.equipmentType = equipmentType.value.key;
 
-        console.log("Adding equipment:", createEquipment);
-        const response = await equipmentService.addEquipment(createEquipment);
-        console.log(response.data);
+        const response = await equipmentService.addEquipment(equipment);
+
         toast.add({ severity: 'success', summary: 'Başarılı', detail: 'Ekipman başarıyla eklendi.', life: 3000 });
 
         await $router.push('/equipment/' + response.data.id);

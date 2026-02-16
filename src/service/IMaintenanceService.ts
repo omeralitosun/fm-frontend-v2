@@ -2,13 +2,14 @@ import { Maintenance } from '@/model/maintenance/Maintenance';
 import type { MaintenanceType } from '@/constants/MaintenanceType';
 import { CreateMaintenance } from '@/model/maintenance/CreateMaintenance'
 import type { AxiosResponse } from 'axios';
+import type { GetAllMaintenanceDTO } from '@/model/dto/GetAllMaintenanceDTO';
 
 export interface IMaintenanceService {
-    getAllMaintenance(page: number, rows: number): Promise<Maintenance[]>;
+    getAllMaintenance(page: number, rows: number): Promise<GetAllMaintenanceDTO>;
     deleteMaintenance(id: string): Promise<void>;
     getMaintenanceTypes(): MaintenanceType[];
     addMaintenance(maintenance: CreateMaintenance): Promise<AxiosResponse<any, any>>;
-    getAllMaintenanceByEquipmentId(equipmentId: string, page: number, rows: number): Promise<Maintenance[]>;
+    getAllMaintenanceByEquipmentId(equipmentId: string, page: number, rows: number): Promise<GetAllMaintenanceDTO>;
     getMaintenanceTypeByKey(key: string): MaintenanceType | undefined;
     /*
     getMaintenance(id: string): Promise<Maintenance>;

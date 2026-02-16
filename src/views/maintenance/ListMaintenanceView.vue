@@ -11,11 +11,12 @@ import { useI18n } from 'vue-i18n';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { Util } from "@/common/Util";
+import type { GetAllMaintenanceDTO } from "@/model/dto/GetAllMaintenanceDTO";
 
 const maintenanceService: IMaintenanceService = ServiceController.getMaintenanceService();
 const properties = useI18n();
 
-const maintenance = ref<Maintenance[]>([]);
+const getAllMaintenanceDto = ref<GetAllMaintenanceDTO>();
 
 const rows = ref(10);
 const page = ref(0);
@@ -49,9 +50,9 @@ async function deleteEquipment(id: string) {
 async function fetchEquipments() {
     loading.value = true;
     if (props.equipmentId) {
-        maintenance.value = await maintenanceService.getAllMaintenanceByEquipmentId(props.equipmentId, page.value, rows.value);
+        getAllMaintenanceDto.value = await maintenanceService.getAllMaintenanceByEquipmentId(props.equipmentId, page.value, rows.value);
     } else {
-        maintenance.value = await maintenanceService.getAllMaintenance(page.value, rows.value);
+        getAllMaintenanceDto.value = await maintenanceService.getAllMaintenance(page.value, rows.value);
     }
     loading.value = false;
 };
@@ -88,7 +89,7 @@ const confirmDelete = (id: string) => {
         <div>
             <Button label="Yeni Ekipman Bakımı" icon="pi pi-plus" class="mb-4" severity="success"
                 @click="$router.push('/maintenance/create')" />
-            <DataTable :value="maintenance" stripedRows :loading="loading">
+            <DataTable :value="getAllMaintenanceDto?.maintenances" stripedRows :loading="loading">
                 <Column field="equipment" :header="properties.t('equipment')">
                     <template #body="{ data }">
                         <a :href="`/equipment/${data.equipment.id}`" class="text-emerald-500">{{
@@ -107,14 +108,12 @@ const confirmDelete = (id: string) => {
                     </template>
                 </Column>
                 <Column class="w-29 !text-end" :header="properties.t('action')">
-                    <template #body="{ data }" :loading="loading">
-                        <Button icon="pi pi-search" severity="info" @click="$router.push('/equipment/' + data.id)"
-                            rounded></Button>
+                    <template #body="{ data }" :loading="loading">                   
                         <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded></Button>
                     </template>
                 </Column>
             </DataTable>
-            <Paginator :rows="rows" @page="onPageChange" :totalRecords="150" :rowsPerPageOptions="[10, 20, 30]" />
+            <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllMaintenanceDto?.totalElements || 0" :rowsPerPageOptions="[10, 20, 30]" />
         </div>
     </div>
 </template>

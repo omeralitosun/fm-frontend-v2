@@ -7,5 +7,12 @@
     "detail": "Detay",
     "maintenanceType": "Bakım Türü",
     "cost": "Maliyet",
-    "date": "Tarih"
+    "date": "Tarih",
+    "field": "Tarla",
+    "fieldDecare": "Tarla (Dönüm)",
+    "productName": "Ürün Adı",
+    "amount": "Miktar",
+    "unitPrice": "Birim Fiyat",
+    "totalPrice": "Toplam Fiyat",
+    "actionTakenType": "Aksiyon Türü"
 }
