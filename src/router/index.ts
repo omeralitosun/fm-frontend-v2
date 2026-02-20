@@ -155,7 +155,24 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/inventory/ListInventoryView.vue'),
-    }
+    },
+    // Harvest
+    {
+      path: '/harvest/create',
+      name: 'createHarvest',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/harvest/CreateHarvestView.vue'),
+    },
+    {
+      path: '/harvest',
+      name: 'harvestList',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/harvest/ListHarvestView.vue'),
+    },
   ],
 })
 

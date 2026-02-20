@@ -19,6 +19,10 @@ export const MenuUtil = {
                 route: '/action-taken'
             },
             {
+                label: 'Biçilen Ürünler (Hasat)',
+                route: '/harvest'
+            },
+            {
                 label: 'Alınan Ürünler (Masraf)',
                 route: '/received-product'
             },
