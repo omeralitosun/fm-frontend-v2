@@ -102,13 +102,13 @@ async function confirmAddProductType() {
 
 async function fetchProductTypes() {
     loading.value = true;
-    productTypes.value = await productTypeService.getAllProductTypes(page, rowSize, productTypeFilterValue);
+    productTypes.value = (await productTypeService.getAllProductTypes(page, rowSize, productTypeFilterValue)).productTypes;
     loading.value = false;
 };
 
 async function onProductTypeScroll(event: { first: number; last: number; }) {
     if ((event.last % rowSize) === 0 && event.last >= productTypes.value.length) {
-        const moreProductTypes = await productTypeService.getAllProductTypes(event.last / rowSize, rowSize, productTypeFilterValue);
+        const moreProductTypes = (await productTypeService.getAllProductTypes(event.last / rowSize, rowSize, productTypeFilterValue)).productTypes;
         productTypes.value = [...productTypes.value, ...moreProductTypes];
     }
 
