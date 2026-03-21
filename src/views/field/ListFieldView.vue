@@ -74,21 +74,36 @@ const confirmDelete = (id: string) => {
 </script>
 
 <template>
-  <div>
-    <div class="">
-      <Button label="Yeni Tarla" icon="pi pi-plus" class="mb-4" severity="success"
-        @click="$router.push('/field/create')" /> 
-      <DataTable :value="getAllFieldDto?.fields" stripedRows :loading="loading">
-        <Column field="name" :header="properties.t('field')"></Column>
-        <Column field="decare" :header="properties.t('fieldDecare')"></Column>
-        <Column class="w-29 !text-end" :header="properties.t('action')">
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+      <h1 class="text-2xl font-bold">{{ properties.t('field') }}</h1>
+      <Button :label="properties.t('new_field')" icon="pi pi-plus" severity="success" rounded
+        @click="$router.push('/field/create')" />
+    </div>
+
+    <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-100 bg-white">
+      <DataTable :value="getAllFieldDto?.fields" stripedRows :loading="loading" class="p-datatable-sm">
+        <Column field="name" :header="properties.t('field')">
+          <template #body="{ data }">
+            <span class="font-medium">{{ data.name }}</span>
+          </template>
+        </Column>
+        <Column field="decare" :header="properties.t('fieldDecare')">
+          <template #body="{ data }">
+            <span class="font-semibold">{{ data.decare }} <span class="text-xs font-normal">Dönüm</span></span>
+          </template>
+        </Column>
+        <Column class="w-32 !text-end" :header="properties.t('action')">
           <template #body="{ data }" :loading="loading">
-            <Button icon="pi pi-search" severity="info" @click="$router.push('/field/' + data.id)" rounded></Button>
-            <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded></Button>
+            <div class="flex gap-2 justify-end">
+              <Button icon="pi pi-search" severity="info" @click="$router.push('/field/' + data.id)" rounded size="small"></Button>
+              <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded size="small"></Button>
+            </div>
           </template>
         </Column>
       </DataTable>
-      <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllFieldDto?.totalElements || 0" :rowsPerPageOptions="[10, 20, 30]" />
     </div>
+
+    <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllFieldDto?.totalElements || 0" :rowsPerPageOptions="[10, 20, 30]" class="mt-4" />
   </div>
 </template>

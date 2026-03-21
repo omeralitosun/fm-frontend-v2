@@ -46,19 +46,32 @@ async function fetchProductTypes() {
 </script>
 
 <template>
-    <div>
-        <div>
-            <InputText v-model="productTypeFilterValue" :placeholder="properties.t('Ürün Ara')" class="mb-4" @input="fetchProductTypes" />
-            <DataTable :value="getAllProductTypeDTO?.productTypes" stripedRows :loading="loading">
-                <Column field="name" header="Ürün"></Column>
+    <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+            <h1 class="text-2xl font-bold">{{ properties.t('inventory') || 'Envanter' }}</h1>
+            <div class="w-full sm:w-64">
+                <InputText v-model="productTypeFilterValue" :placeholder="properties.t('Ürün Ara')" class="w-full" @input="fetchProductTypes" />
+            </div>
+        </div>
+
+        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-100 bg-white">
+            <DataTable :value="getAllProductTypeDTO?.productTypes" stripedRows :loading="loading" class="p-datatable-sm">
+                <Column field="name" header="Ürün">
+                    <template #body="{ data }">
+                        <span class="font-medium">{{ data.name }}</span>
+                    </template>
+                </Column>
                 <Column field="amount" :header="properties.t('amount')">
                     <template #body="{ data }">
-                        {{ Util.formatQuantity(data.totalAmount, Unit.getUnitByKey(data.unit)?.label) }}
+                        <span class="font-semibold">
+                            {{ Util.formatQuantity(data.totalAmount, Unit.getUnitByKey(data.unit)?.label) }}
+                        </span>
                     </template>
                 </Column>
             </DataTable>
-            <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllProductTypeDTO?.totalElements || 0"
-                :rowsPerPageOptions="[10, 20, 30]" />
         </div>
+
+        <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllProductTypeDTO?.totalElements || 0"
+            :rowsPerPageOptions="[10, 20, 30]" class="mt-4" />
     </div>
 </template>

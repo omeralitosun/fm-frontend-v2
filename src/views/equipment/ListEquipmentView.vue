@@ -76,21 +76,38 @@ const confirmDelete = (id: string) => {
 </script>
 
 <template>
-  <div>
-    <div class="">
-      <Button label="Yeni Ekipman" icon="pi pi-plus" class="mb-4" severity="success"
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+      <h1 class="text-2xl font-bold">{{ properties.t('equipment') }}</h1>
+      <Button :label="properties.t('new_equipment')" icon="pi pi-plus" severity="success" rounded
         @click="$router.push('/equipment/create')" />
-      <DataTable :value="getAllEquipmentDto?.equipments" stripedRows :loading="loading">
-        <Column field="name" :header="properties.t('equipment')"></Column>
-        <Column field="equipmentType" :header="properties.t('equipmentType')"></Column>
-        <Column class="w-29 !text-end" :header="properties.t('action')">
+    </div>
+
+    <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-100 bg-white">
+      <DataTable :value="getAllEquipmentDto?.equipments" stripedRows :loading="loading" class="p-datatable-sm">
+        <Column field="name" :header="properties.t('equipment')">
+          <template #body="{ data }">
+            <span class="font-medium">{{ data.name }}</span>
+          </template>
+        </Column>
+        <Column field="equipmentType" :header="properties.t('equipmentType')">
+          <template #body="{ data }">
+            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-semibold uppercase tracking-wider">
+              {{ data.equipmentType }}
+            </span>
+          </template>
+        </Column>
+        <Column class="w-32 !text-end" :header="properties.t('action')">
           <template #body="{ data }" :loading="loading">
-            <Button icon="pi pi-search" severity="info" @click="$router.push('/equipment/' + data.id)" rounded></Button>
-            <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded></Button>
+            <div class="flex gap-2 justify-end">
+              <Button icon="pi pi-search" severity="info" @click="$router.push('/equipment/' + data.id)" rounded size="small"></Button>
+              <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded size="small"></Button>
+            </div>
           </template>
         </Column>
       </DataTable>
-      <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllEquipmentDto?.totalElements" :rowsPerPageOptions="[10, 20, 30]" />
     </div>
+
+    <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllEquipmentDto?.totalElements" :rowsPerPageOptions="[10, 20, 30]" class="mt-4" />
   </div>
 </template>

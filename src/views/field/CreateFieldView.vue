@@ -5,66 +5,70 @@ import InputNumber from 'primevue/inputnumber';
 import type { IFieldService } from "@/service/IFieldService";
 import { ServiceController } from "@/service/ServiceController";
 import Button from 'primevue/button';
-import { ref } from 'vue';
 import { CreateField } from '@/model/field/CreateField';
 import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
+import { useI18n } from 'vue-i18n';
+import { useForm } from 'vee-validate';
+import * as yup from 'yup';
 
 const fieldService: IFieldService = ServiceController.getFieldService();
-const loading = ref(false);
 const $router = useRouter();
 const toast = useToast();
+const properties = useI18n();
 
-const fieldName = ref<string>();
-const fieldDecare = ref<number>();
+const schema = yup.object({
+    fieldName: yup.string().required(properties.t('required')),
+    fieldDecare: yup.number().required(properties.t('required')).min(0.1)
+});
 
-async function confirmAddField() {
-    loading.value = true;
+const { defineField, handleSubmit, errors } = useForm({
+    validationSchema: schema,
+});
+
+const [fieldName] = defineField('fieldName');
+const [fieldDecare] = defineField('fieldDecare');
+
+const confirmAddField = handleSubmit(async (values) => {
     try {
-        let createField: CreateField = new CreateField();
-        if (!fieldName.value || !fieldDecare.value) {
-            toast.add({ severity: 'warn', summary: 'Zorunlu', detail: 'Tarla adı ve dekarı zorunludur', life: 1500, group: 'top-center' });
-            return;
-        }
-
-        createField.name = fieldName.value;
-        createField.decare = fieldDecare.value;
+        const createField = new CreateField();
+        createField.name = values.fieldName;
+        createField.decare = values.fieldDecare;
 
         const response = await fieldService.addField(createField);
         
-        toast.add({ severity: 'success', summary: 'Başarılı', detail: 'Tarla başarıyla eklendi.', life: 3000 });
+        toast.add({ severity: 'success', summary: properties.t('success'), detail: properties.t('add_success'), life: 3000 });
 
         await $router.push('/field/' + response.data.id);
     } catch (error) {
         console.error("Error adding Field:", error);
-    } finally {
-        loading.value = false;
     }
-}
+});
 
 </script>
 
 <template>
-    <div class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Yeni Tarla</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button label="Kaydet" icon="pi pi-check" class="mb-4" severity="success" :loading="loading"
-                    @click="confirmAddField()" />
-            </div>
+    <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">{{ properties.t('new_field') }}</h1>
+            <Button :label="properties.t('save')" icon="pi pi-check" severity="success" rounded
+                @click="confirmAddField()" />
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputText id="fieldName" v-model="fieldName" class="w-full" />
-                    <label for="fieldName">Tarla Adı</label>
+                    <InputText id="fieldName" v-model="fieldName" class="w-full" :invalid="!!errors.fieldName" />
+                    <label for="fieldName">{{ properties.t('field') }}</label>
                 </FloatLabel>
+                <small class="text-red-500">{{ errors.fieldName }}</small>
             </div>
-            <div class="w-full md:w-52 mb-5">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputNumber id="fieldDecare" v-model="fieldDecare" class="w-full" :maxFractionDigits="1" :minFractionDigits="1" :min="0"/>
-                    <label for="fieldDecare">Dönüm</label>
+                    <InputNumber id="fieldDecare" v-model="fieldDecare" class="w-full" :maxFractionDigits="1" :minFractionDigits="1" :min="0" :invalid="!!errors.fieldDecare" />
+                    <label for="fieldDecare">{{ properties.t('fieldDecare') }}</label>
                 </FloatLabel>
+                <small class="text-red-500">{{ errors.fieldDecare }}</small>
             </div>
         </div>
     </div>

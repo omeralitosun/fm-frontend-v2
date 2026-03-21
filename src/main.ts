@@ -13,6 +13,8 @@ import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import DialogService from 'primevue/dialogservice';
 import Toast from 'primevue/toast'
+import Tooltip from 'primevue/tooltip';
+import Popover from 'primevue/popover';
 
 const app = createApp(App)
 
@@ -29,7 +31,9 @@ app.use(i18n);
 app.use(ConfirmationService);
 app.use(ToastService);
 app.use(DialogService);
+app.directive('tooltip', Tooltip);
 app.component('Toast', Toast);
+app.component('Popover', Popover);
 
 app.config.errorHandler = (err, vm, info) => {
     errorHandler(err);
@@ -55,7 +59,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
 const errorHandler = (err: any) => {
     console.error('Global Error Handler:', err);
-    if(!(err instanceof AppError)) {
+    if (!(err instanceof AppError)) {
         err = ErrorUtil.createError(err);
     }
 

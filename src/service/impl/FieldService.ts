@@ -1,60 +1,50 @@
 import { Service } from "typedi";
 import type { IFieldService } from "../IFieldService";
-import axios from "axios";
+import api from "../api";
 import { CreateField } from "@/model/field/CreateField";
-import type { AxiosResponse } from "axios";
 import { Field } from "@/model/field/Field";
 import { GetAllFieldDTO } from "@/model/dto/GetAllFieldDTO";
 
 @Service()
 export class FieldService implements IFieldService {
-    apiUrl = import.meta.env.VITE_SERVICE_URL;
-    apiFieldURL = this.apiUrl + "/api/v1/field"
+    private readonly apiFieldURL = "/api/v1/field";
 
-    async addField(field: CreateField): Promise<AxiosResponse<any, any>> {
-        let pathVariable = this.apiFieldURL;
-        return await axios.post(pathVariable, field);
+    async addField(field: CreateField) {
+        return await api.post(this.apiFieldURL, field);
     }
 
     async getField(id: string): Promise<Field> {
-        let pathVariable = this.apiFieldURL + "/" + id;
-        const response = await axios.get(pathVariable);
-        const field = new Field();
-
-        field.id = response.data.id;
-        field.name = response.data.name;
-        field.decare = response.data.decare;
-
-        return field;
+        const response = await api.get(`${this.apiFieldURL}/${id}`);
+        return this.mapToField(response.data);
     }
 
     async getAllField(page: number, rows: number): Promise<GetAllFieldDTO> {
-        let pathVariable = this.apiFieldURL + "?page=" + page + "&rows=" + rows;
-        const response = await axios.get(pathVariable);
-
-        const getAllFieldDTO = new GetAllFieldDTO();
-
-        getAllFieldDTO.totalElements = response.data.totalElements;
-        getAllFieldDTO.fields = response.data.fields.map((item: any) => {
-            const field = new Field();
-
-            field.id = item.id;
-            field.name = item.name;
-            field.decare = item.decare;
-
-            return field;
+        const response = await api.get(this.apiFieldURL, {
+            params: { page, rows }
         });
-
-        return getAllFieldDTO;
+        return this.mapToGetAllFieldDTO(response.data);
     }
 
     async deleteField(id: string): Promise<void> {
-        let pathVariable = this.apiFieldURL + "/" + id;
-        const response = await axios.delete(pathVariable)
+        await api.delete(`${this.apiFieldURL}/${id}`);
     }
 
-    async updateField(id: string, field: CreateField): Promise<AxiosResponse<any, any>> {
-        let pathVariable = this.apiFieldURL + "/" + id;
-        return await axios.put(pathVariable, field);
+    async updateField(id: string, field: CreateField) {
+        return await api.put(`${this.apiFieldURL}/${id}`, field);
+    }
+
+    private mapToGetAllFieldDTO(data: any): GetAllFieldDTO {
+        const dto = new GetAllFieldDTO();
+        dto.totalElements = data.totalElements;
+        dto.fields = data.fields.map((item: any) => this.mapToField(item));
+        return dto;
+    }
+
+    private mapToField(item: any): Field {
+        const field = new Field();
+        field.id = item.id;
+        field.name = item.name;
+        field.decare = item.decare;
+        return field;
     }
 }

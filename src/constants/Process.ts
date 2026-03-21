@@ -9,10 +9,12 @@ export class Process {
     static readonly SPRAYING = new Process("SPRAYING", "İlaçlama");
     static readonly WATERING = new Process("WATERING", "Sulama");
     static readonly REAP = new Process("REAP", "Biçim");
+    static readonly FERTILIZATION = new Process("FERTILIZATION", "Gübreleme");
     static readonly OTHER = new Process("OTHER", "Diğer");
 
+
     static values(): Process[] {
-        return [Process.SOIL_PREPARATION, Process.PLANTING, Process.SPRAYING, Process.WATERING, Process.REAP, Process.OTHER];
+        return [Process.SOIL_PREPARATION, Process.PLANTING, Process.SPRAYING, Process.WATERING, Process.REAP, Process.FERTILIZATION, Process.OTHER];
     }
 
     static getProcessByKey(key: string): Process | undefined {

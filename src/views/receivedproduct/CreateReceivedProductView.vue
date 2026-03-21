@@ -121,16 +121,15 @@ async function onProductTypeFilter(event: { value: string; }) {
 </script>
 
 <template>
-    <div class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Alınan Ürün Ekleme</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button label="Kaydet" icon="pi pi-check" class="mb-4" severity="success" :loading="loading"
-                    @click="confirmAddReceivedProduct()" />
-            </div>
+    <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">Alınan Ürün Ekleme</h1>
+            <Button label="Kaydet" icon="pi pi-check" severity="success" rounded :loading="loading"
+                @click="confirmAddReceivedProduct()" />
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6 mb">
-            <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="productType" inputId="productType" :options="productTypes" class="w-full"
                         :virtualScrollerOptions="{
@@ -142,17 +141,18 @@ async function onProductTypeFilter(event: { value: string; }) {
                             <span v-if="value">
                                 {{ value.name }} ({{ value.totalAmount }})
                             </span>
+                            <span v-else>Ürün Seçin</span>
                         </template>
                         <template #option="{ option }">
                             <div class="flex justify-between w-full">
                                 <span>{{ option.name }}</span>
-                                <span class="text-sm text-gray-500">
+                                <span class="text-sm">
                                     ({{ Util.formatQuantity(option.totalAmount) }} {{ Unit.getUnitByKey(option.unit)?.label }})
                                 </span>
                             </div>
                         </template>
                         <template #footer>
-                            <div class="p-3">
+                            <div class="p-3 border-t border-gray-100">
                                 <Button label="Ürün Tipi Ekle" fluid severity="secondary" variant="text" size="small"
                                     icon="pi pi-plus" @click="visibleAddProductTypeDialog = true" />
                             </div>
@@ -161,57 +161,60 @@ async function onProductTypeFilter(event: { value: string; }) {
                     <label for="productType">Ürün Tipi</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <DatePicker id="maintenanceDate" v-model="receivedProduct.date" class="w-full" showIcon
+                    <DatePicker id="receivedDate" v-model="receivedProduct.date" class="w-full" showIcon
                         dateFormat="dd/mm/yy" />
-                    <label for="maintenanceDate">Alım Tarihi</label>
+                    <label for="receivedDate">Alım Tarihi</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputNumber v-model="receivedProduct.amount" mode="decimal" locale="tr-TR" :minFractionDigits="2"
-                        :maxFractionDigits="2" :useGrouping="true" :suffix="productType?.unit
-                            ? ` ${Unit.getUnitByKey(productType.unit)?.label}`
-                            : ''" fluid />
-                    <label>Miktar</label>
+                    <InputNumber v-model="receivedProduct.amount" inputId="amount" class="w-full" :maxFractionDigits="2" />
+                    <label for="amount">Miktar</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputNumber v-model="receivedProduct.unitPrice" inputId="currency-us" mode="currency"
-                        currency="TRY" locale="en-TR" fluid />
-                    <label for="maintenanceDate">Birim Fiyatı</label>
+                    <InputNumber v-model="receivedProduct.unitPrice" inputId="unitPrice" mode="currency" currency="TRY"
+                        locale="tr-TR" class="w-full" />
+                    <label for="unitPrice">Birim Fiyatı</label>
                 </FloatLabel>
             </div>
-        </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 md:mt-5">
+
+            <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-2">
                 <FloatLabel variant="on">
-                    <Textarea id="maintenanceComment" v-model="receivedProduct.comment" rows="5" cols="50"
+                    <Textarea id="receivedComment" v-model="receivedProduct.comment" rows="3" class="w-full"
                         style="resize: none" />
-                    <label for="maintenanceComment">Not</label>
+                    <label for="receivedComment">Açıklama</label>
                 </FloatLabel>
             </div>
         </div>
+
+        <Dialog v-model:visible="visibleAddProductTypeDialog" modal header="Yeni Ürün Tipi Ekle"
+            :style="{ width: '90vw', maxWidth: '400px' }">
+            <div class="flex flex-col gap-6 pt-4">
+                <div class="flex flex-col gap-2">
+                    <FloatLabel variant="on">
+                        <InputText id="productTypeName" v-model="productTypeName" class="w-full" />
+                        <label for="productTypeName">Ürün Tipi Adı</label>
+                    </FloatLabel>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <FloatLabel variant="on">
+                        <Select v-model="unit" inputId="unit" :options="Unit.values()" optionLabel="label"
+                            class="w-full" />
+                        <label for="unit">Birim</label>
+                    </FloatLabel>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <Button label="İptal" severity="secondary" variant="text" @click="visibleAddProductTypeDialog = false" />
+                    <Button label="Kaydet" severity="success" @click="confirmAddProductType()" :loading="loading" />
+                </div>
+            </div>
+        </Dialog>
     </div>
-    <Dialog v-model:visible="visibleAddProductTypeDialog" header="Yeni Ürün Tipi" :style="{ width: '25rem' }">
-        <div class="w-full md:w-52 mb-5">
-            <FloatLabel variant="on">
-                <InputText id="productTypeName" v-model="productTypeName" class="w-full" />
-                <label for="productTypeName">Ürün Tipi Adı</label>
-            </FloatLabel>
-        </div>
-        <div class="w-full md:w-52 mb-5">
-            <FloatLabel variant="on">
-                <Select v-model="unit" inputId="unit" :options="Util.getUnits()" optionLabel="label" class="w-full" />
-                <label for="unit">Birim</label>
-            </FloatLabel>
-        </div>
-        <div class="flex justify-end gap-2">
-            <Button type="button" label="İptal" severity="secondary"
-                @click="visibleAddProductTypeDialog = false"></Button>
-            <Button type="button" label="Kaydet" @click="confirmAddProductType()"></Button>
-        </div>
-    </Dialog>
 </template>

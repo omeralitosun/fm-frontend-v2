@@ -9,7 +9,7 @@ import InputText from 'primevue/inputtext';
 import Button from "primevue/button";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import type { EquipmentType } from '@/constants/EquipmentType';
+import { EquipmentType } from '@/constants/EquipmentType';
 import Select from 'primevue/select';
 import ListMaintenanceView from "../maintenance/ListMaintenanceView.vue";
 import Accordion from "primevue/accordion";
@@ -40,7 +40,7 @@ async function fetchEquipment(id: string) {
         loading.value = true;
         equipment.value = await equipmentService.getEquipment(id); // ← await eklendi
 
-        equipmentType.value = equipmentService.getEquipmentTypeByKey(equipment.value.equipmentType);
+        equipmentType.value = EquipmentType.getEquipmentTypeByKey(equipment.value.equipmentType);
 
         if (equipmentType.value) {
             equipment.value.equipmentType = equipmentType.value.label;
@@ -140,52 +140,61 @@ async function updateEquipment(id: string) {
 </script>
 
 <template>
-    <div v-if="equipment" class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Ekipman Detay</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button v-if="!isEditable" label="Düzenle" icon="pi pi-pencil" class="mb-4 ml-2" severity="info"
-                    :loading="loading" @click="confirmEditEquipment()" />
-                <Button v-if="!isEditable" label="Sil" icon="pi pi-trash" class="mb-4 ml-2" severity="danger"
-                    :loading="loading" @click="confirmDelete(id)" />
-                <Button v-if="isEditable" label="Kaydet" icon="pi pi-check" class="mb-4 ml-2" severity="success"
-                    :loading="loading" @click="confirmUpdateEquipment(id)" />
-                <Button v-if="isEditable" label="Vazgeç" icon="pi pi-times" class="mb-4 ml-2" severity="warn"
-                    :loading="loading" @click="confirmCancelEdit()" />
+    <div v-if="equipment" class="space-y-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+            <h1 class="text-2xl font-bold">Ekipman Detay</h1>
+            <div class="flex flex-wrap gap-2">
+                <template v-if="!isEditable">
+                    <Button label="Düzenle" icon="pi pi-pencil" severity="info" rounded :loading="loading"
+                        @click="confirmEditEquipment()" />
+                    <Button label="Sil" icon="pi pi-trash" severity="danger" rounded :loading="loading"
+                        @click="confirmDelete(id)" />
+                </template>
+                <template v-else>
+                    <Button label="Kaydet" icon="pi pi-check" severity="success" rounded :loading="loading"
+                        @click="confirmUpdateEquipment(id)" />
+                    <Button label="Vazgeç" icon="pi pi-times" severity="warn" rounded :loading="loading"
+                        @click="confirmCancelEdit()" />
+                </template>
             </div>
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 mb-5 ">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <InputText id="equipmentName" v-model='equipment.name' class="w-full"
-                        :style="{ color: !isEditable ? 'oklch(69.6% 0.17 162.48)' : '' }" :disabled="!isEditable" />
+                        :class="{ 'font-bold text-emerald-600 bg-emerald-50/50': !isEditable }"
+                        :disabled="!isEditable" />
                     <label for="equipmentName">Ekipman Adı</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputText v-if="!isEditable" id="equipmentType" v-model='equipment.equipmentType' class="w-full"
-                        style="color: oklch(69.6% 0.17 162.48);" :disabled="!isEditable" />
+                    <InputText v-if="!isEditable" id="equipmentType" v-model='equipment.equipmentType'
+                        class="w-full font-bold text-emerald-600 bg-emerald-50/50" :disabled="!isEditable" />
                     <Select v-if="isEditable" v-model="equipmentType" inputId="equipmentType"
-                        :options="equipmentService.getEquipmentTypes()" optionLabel="label" class="w-full"
-                        :disabled="!isEditable">
-                        <template></template>
-                    </Select>
+                        :options="equipmentService.getEquipmentTypes()" optionLabel="label" class="w-full" />
                     <label for="equipmentType">Ekipman Tipi</label>
                 </FloatLabel>
             </div>
         </div>
-        <div class="grid md:grid-cols-6 mt-20">
-            <div class="md:col-span-5">
-                <Accordion value="0">
-                    <AccordionPanel value="Bakımlar" key="maintenance">
-                        <AccordionHeader>Bakım</AccordionHeader>
-                        <AccordionContent>
+
+        <div class="mt-12">
+            <Accordion value="0">
+                <AccordionPanel value="0">
+                    <AccordionHeader>
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-wrench text-emerald-600"></i>
+                            <span class="font-bold">Bakım Geçmişi</span>
+                        </div>
+                    </AccordionHeader>
+                    <AccordionContent>
+                        <div class="overflow-x-auto">
                             <ListMaintenanceView :equipmentId="id" />
-                        </AccordionContent>
-                    </AccordionPanel>
-                </Accordion>
-            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionPanel>
+            </Accordion>
         </div>
     </div>
 </template>

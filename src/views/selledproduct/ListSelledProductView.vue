@@ -82,20 +82,32 @@ const confirmDelete = (id: number) => {
 </script>
 
 <template>
-    <div>
-        <div>
-            <Button label="Satılan Ürün Ekle" icon="pi pi-plus" class="mb-4" severity="success"
+    <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+            <h1 class="text-2xl font-bold">{{ properties.t('new_selled_product') }}</h1>
+            <Button label="Satılan Ürün Ekle" icon="pi pi-plus" severity="success" rounded
                 @click="$router.push('/selled-product/create')" />
-            <DataTable :value="getAllSelledProductsDto?.selledProducts" stripedRows :loading="loading">
-                <Column field="productTypeName" :header="properties.t('productName')"></Column>
+        </div>
+
+        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-100 bg-white">
+            <DataTable :value="getAllSelledProductsDto?.selledProducts" stripedRows :loading="loading" class="p-datatable-sm">
+                <Column field="productTypeName" :header="properties.t('productName')">
+                    <template #body="{ data }">
+                        <span class="font-medium">{{ data.productTypeName }}</span>
+                    </template>
+                </Column>
                 <Column field="date" :header="properties.t('date')">
                     <template #body="{ data }">
-                        {{ Util.formatDate(data.date) }}
+                        <span class="">
+                            {{ Util.formatDate(data.date) }}
+                        </span>
                     </template>
                 </Column>
                 <Column field="amount" :header="properties.t('amount')">
                     <template #body="{ data }">
-                        {{ Util.formatQuantity(data.amount, Unit.getUnitByKey(data.unit)?.label) }}
+                        <span class="font-semibold">
+                            {{ Util.formatQuantity(data.amount, Unit.getUnitByKey(data.unit)?.label) }}
+                        </span>
                     </template>
                 </Column>
                 <Column field="unitPrice" :header="properties.t('unitPrice')">
@@ -105,16 +117,23 @@ const confirmDelete = (id: number) => {
                 </Column>
                 <Column field="totalPrice" :header="properties.t('totalPrice')">
                     <template #body="{ data }">
-                        {{ Util.formatCurrency(data.unitPrice * data.amount, 'tr') }}
+                        <span class="font-semibold text-primary-600">
+                            {{ Util.formatCurrency(data.unitPrice * data.amount, 'tr') }}
+                        </span>
                     </template>
                 </Column>
-                <Column class="w-29 !text-end" :header="properties.t('action')">
+                <Column class="w-32 !text-end" :header="properties.t('action')">
                     <template #body="{ data }" :loading="loading">
-                        <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded></Button>
+                        <div class="flex gap-2 justify-end">
+                            <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)"
+                                rounded size="small"></Button>
+                        </div>
                     </template>
                 </Column>
             </DataTable>
-            <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllSelledProductsDto?.totalElements || 0" :rowsPerPageOptions="[10, 20, 30]" />
         </div>
+
+        <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllSelledProductsDto?.totalElements || 0"
+            :rowsPerPageOptions="[10, 20, 30]" class="mt-4" />
     </div>
 </template>

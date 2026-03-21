@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import axios, { type AxiosResponse } from "axios";
+import api from "../api";
 import type { IMaintenanceService } from '../IMaintenanceService';
 import { Maintenance } from '@/model/maintenance/Maintenance';
 import { MaintenanceType } from '@/constants/MaintenanceType';
@@ -8,77 +8,48 @@ import { GetAllMaintenanceDTO } from '@/model/dto/GetAllMaintenanceDTO';
 
 @Service()
 export class MaintenanceService implements IMaintenanceService {
-
-    apiUrl = import.meta.env.VITE_SERVICE_URL;
-    apiMaintenanceURL = this.apiUrl + "/api/v1/maintenance"
+    private readonly apiMaintenanceURL = "/api/v1/maintenance";
 
     async getAllMaintenance(page: number, rows: number): Promise<GetAllMaintenanceDTO> {
-        let pathVariable = this.apiMaintenanceURL + "?page=" + page + "&rows=" + rows;
-        const response = await axios.get(pathVariable);
-
-        const getAllMaintenanceDTO = new GetAllMaintenanceDTO();
-
-        getAllMaintenanceDTO.totalElements = response.data.totalElements;
-        getAllMaintenanceDTO.maintenances = response.data.maintenances.map((item: any) => {
-            const maintenance = new Maintenance();
-            const type = this.getMaintenanceTypeByKey(item.maintenanceType);
-
-            if (type) {
-                maintenance.maintenanceType = type.label;
-            }
-
-            maintenance.id = item.id;
-            maintenance.equipment = item.equipment;
-            maintenance.cost = item.cost;
-            maintenance.comment = item.comment;
-            maintenance.date = item.date;
-
-            return maintenance;
+        const response = await api.get(this.apiMaintenanceURL, {
+            params: { page, rows }
         });
-        return getAllMaintenanceDTO;
+        return this.mapToGetAllMaintenanceDTO(response.data);
     }
 
     async deleteMaintenance(id: string): Promise<void> {
-        let pathVariable = this.apiMaintenanceURL + "/" + id;
-        const response = await axios.delete(pathVariable)
+        await api.delete(`${this.apiMaintenanceURL}/${id}`);
     }
 
-    getMaintenanceTypes(): MaintenanceType[] {
-        return MaintenanceType.values();
-    }
-
-    async addMaintenance(maintenance: CreateMaintenance): Promise<AxiosResponse<any, any>> {
-        let pathVariable = this.apiMaintenanceURL;
-        return await axios.post(pathVariable, maintenance);
+    async addMaintenance(maintenance: CreateMaintenance) {
+        return await api.post(this.apiMaintenanceURL, maintenance);
     }
 
     async getAllMaintenanceByEquipmentId(equipmentId: string, page: number, rows: number): Promise<GetAllMaintenanceDTO> {
-        let pathVariable = this.apiMaintenanceURL + "/equipment/" + equipmentId + "?page=" + page + "&rows=" + rows;
-        const response = await axios.get(pathVariable);
-
-        const getAllMaintenanceDTO = new GetAllMaintenanceDTO();
-
-        getAllMaintenanceDTO.totalElements = response.data.totalElements;
-        getAllMaintenanceDTO.maintenances = response.data.maintenances.map((item: any) => {
-            const maintenance = new Maintenance();
-            const type = this.getMaintenanceTypeByKey(item.maintenanceType);
-
-            if (type) {
-                maintenance.maintenanceType = type.label;
-            }
-
-            maintenance.id = item.id;
-            maintenance.equipment = item.equipment;
-            maintenance.cost = item.cost;
-            maintenance.comment = item.comment;
-            maintenance.date = item.date;
-
-            return maintenance;
+        const response = await api.get(`${this.apiMaintenanceURL}/equipment/${equipmentId}`, {
+            params: { page, rows }
         });
-        return getAllMaintenanceDTO;
+        return this.mapToGetAllMaintenanceDTO(response.data);
     }
 
-    getMaintenanceTypeByKey(key: string): MaintenanceType | undefined {
-        return MaintenanceType.getMaintenanceTypeByKey(key);
+    private mapToGetAllMaintenanceDTO(data: any): GetAllMaintenanceDTO {
+        const dto = new GetAllMaintenanceDTO();
+        dto.totalElements = data.totalElements;
+        dto.maintenances = data.maintenances.map((item: any) => this.mapToMaintenance(item));
+        return dto;
+    }
+
+    private mapToMaintenance(item: any): Maintenance {
+        const maintenance = new Maintenance();
+        maintenance.id = item.id;
+        maintenance.equipment = item.equipment;
+        maintenance.cost = item.cost;
+        maintenance.comment = item.comment;
+        maintenance.date = item.date;
+
+        const type = MaintenanceType.getMaintenanceTypeByKey(item.maintenanceType);
+        maintenance.maintenanceType = type ? type.label : item.maintenanceType;
+
+        return maintenance;
     }
 }

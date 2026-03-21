@@ -1,49 +1,46 @@
 import { Service } from "typedi";
 import type { IHarvestService } from "../IHarvestService";
-import axios from "axios";
+import api from "../api";
 import { CreateHarvest } from "@/model/harvest/CreateHarvest";
-import type { AxiosResponse } from "axios";
 import { GetAllHarvestDTO } from "@/model/dto/GetAllHarvestDTO";
 import { Harvest } from "@/model/harvest/Harvest";
 
 @Service()
 export class HarvestService implements IHarvestService {
-    apiUrl = import.meta.env.VITE_SERVICE_URL;
-    apiHarvestURL = this.apiUrl + "/api/v1/harvest"
+    private readonly apiHarvestURL = "/api/v1/harvest";
 
-    async addHarvest(Harvest: CreateHarvest): Promise<AxiosResponse<any, any>> {
-        let pathVariable = this.apiHarvestURL;
-        return await axios.post(pathVariable, Harvest);
+    async addHarvest(harvest: CreateHarvest) {
+        return await api.post(this.apiHarvestURL, harvest);
     }
 
     async getAllHarvest(page: number, rows: number): Promise<GetAllHarvestDTO> {
-        let pathVariable = this.apiHarvestURL + "?page=" + page + "&rows=" + rows;
-        const response = await axios.get(pathVariable);
-
-        console.log(response);
-        const getAllHarvestDTO = new GetAllHarvestDTO();
-
-        getAllHarvestDTO.totalElements = response.data.totalElements;
-        getAllHarvestDTO.harvests = response.data.harvests.map((item: any) => {
-            const harvest = new Harvest();
-
-            harvest.id = item.id;
-            harvest.fieldId = item.field.id;
-            harvest.fieldName = item.field.name;
-            harvest.productTypeName = item.productType.name;
-            harvest.seasonName = item.season.name;
-            harvest.amount = item.amount;
-            harvest.comment = item.comment;
-            harvest.date = item.date;
-            
-
-            return harvest;
+        const response = await api.get(this.apiHarvestURL, {
+            params: { page, rows }
         });
-        
-        return getAllHarvestDTO;
+        return this.mapToGetAllHarvestDTO(response.data);
     }
+
     async deleteHarvest(id: number): Promise<void> {
-        let pathVariable = this.apiHarvestURL + "/" + id;
-        const response = await axios.delete(pathVariable)
+        await api.delete(`${this.apiHarvestURL}/${id}`);
+    }
+
+    private mapToGetAllHarvestDTO(data: any): GetAllHarvestDTO {
+        const dto = new GetAllHarvestDTO();
+        dto.totalElements = data.totalElements;
+        dto.harvests = data.harvests.map((item: any) => this.mapToHarvest(item));
+        return dto;
+    }
+
+    private mapToHarvest(item: any): Harvest {
+        const harvest = new Harvest();
+        harvest.id = item.id;
+        harvest.fieldId = item.field.id;
+        harvest.fieldName = item.field.name;
+        harvest.productTypeName = item.productType.name;
+        harvest.seasonName = item.season.name;
+        harvest.amount = item.amount;
+        harvest.comment = item.comment;
+        harvest.date = item.date;
+        return harvest;
     }
 }

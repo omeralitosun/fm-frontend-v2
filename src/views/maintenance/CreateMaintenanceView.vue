@@ -9,7 +9,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
 import { Equipment } from '@/model/equipment/Equipment';
 import { Maintenance } from '@/model/maintenance/Maintenance';
-import type { MaintenanceType } from '@/constants/MaintenanceType';
+import { MaintenanceType } from '@/constants/MaintenanceType';
 import type { IMaintenanceService } from '@/service/IMaintenanceService';
 import DatePicker from 'primevue/datepicker';
 import InputNumber from 'primevue/inputnumber';
@@ -86,16 +86,15 @@ async function onEquipmentFilter(event: { value: string; }) {
 </script>
 
 <template>
-    <div class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Ekipman Bakımı</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button label="Kaydet" icon="pi pi-check" class="mb-4" severity="success" :loading="loading"
-                    @click="confirmAddEquipment()" />
-            </div>
+    <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">Ekipman Bakımı Ekleme</h1>
+            <Button label="Kaydet" icon="pi pi-check" severity="success" rounded :loading="loading"
+                @click="confirmAddEquipment()" />
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6 mb">
-            <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="equipment" inputId="equipment" :options="equipments" optionLabel="name"
                         class="w-full" :virtualScrollerOptions="{
@@ -104,7 +103,7 @@ async function onEquipmentFilter(event: { value: string; }) {
                             onLazyLoad: onEquipmentScroll
                         }" :filter="true" filterPlaceholder="Ekipman ara..." @filter="onEquipmentFilter">
                         <template #footer>
-                            <div class="p-3">
+                            <div class="p-3 border-t border-gray-100">
                                 <Button label="Yeni Ekipman" fluid severity="secondary" variant="text" size="small"
                                     icon="pi pi-plus" @click="$router.push('/equipment/create')" />
                             </div>
@@ -113,34 +112,36 @@ async function onEquipmentFilter(event: { value: string; }) {
                     <label for="equipment">Ekipman</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="maintenanceType" inputId="maintenanceType"
-                        :options="maintenanceService.getMaintenanceTypes()" optionLabel="label" class="w-full" />
+                        :options="MaintenanceType.values()" optionLabel="label" class="w-full" />
                     <label for="maintenanceType">Bakım Tipi</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <DatePicker id="maintenanceDate" v-model="maintenance.date" class="w-full" showIcon
                         dateFormat="dd/mm/yy" />
                     <label for="maintenanceDate">Bakım Tarihi</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputNumber v-model="maintenance.cost" inputId="currency-us" mode="currency" currency="TRY"
-                        locale="en-TR" fluid />
-                    <label for="maintenanceDate">Bakım Maliyeti</label>
+                    <InputNumber v-model="maintenance.cost" inputId="maintenanceCost" mode="currency" currency="TRY"
+                        locale="tr-TR" class="w-full" />
+                    <label for="maintenanceCost">Maliyet</label>
                 </FloatLabel>
             </div>
-        </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 md:mt-5">
+
+            <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-2">
                 <FloatLabel variant="on">
-                    <Textarea id="maintenanceComment" v-model="maintenance.comment" rows="5" cols="50"
+                    <Textarea id="maintenanceComment" v-model="maintenance.comment" rows="3" class="w-full"
                         style="resize: none" />
-                    <label for="maintenanceComment">Not</label>
+                    <label for="maintenanceComment">Açıklama</label>
                 </FloatLabel>
             </div>
         </div>

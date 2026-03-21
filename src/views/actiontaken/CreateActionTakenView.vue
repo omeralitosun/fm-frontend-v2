@@ -29,9 +29,12 @@ import type { IProductTypeService } from '@/service/IProductTypeService';
 import { Util } from '@/common/Util';
 import { Process } from '@/constants/Process';
 
+import { useI18n } from 'vue-i18n';
+
 const loading = ref(false);
 const toast = useToast();
 const $router = useRouter();
+const properties = useI18n();
 
 const seasonService: ISeasonService = ServiceController.getSeasonService();
 const actionTakenService: IActionTakenService = ServiceController.getActionTakenService();
@@ -72,7 +75,7 @@ async function confirmAddActionTaken() {
     loading.value = true;
     try {
         if (!season.value || !field.value || !process.value || !createActionTaken.date || ((createActionTaken.cost === undefined || createActionTaken.cost < 0) && createUsedProducts.value.length === 0)) {
-            toast.add({ severity: 'warn', summary: 'Zorunlu', detail: 'Sezon, tarla, tarih zorunludur. Diğer maliyet veya en az bir kullanılan ürün zorunludur.', life: 1500, group: 'top-center' });
+            toast.add({ severity: 'warn', summary: properties.t('required'), detail: properties.t('form_required_fields_error'), life: 1500, group: 'top-center' });
             return;
         }
 
@@ -82,7 +85,7 @@ async function confirmAddActionTaken() {
         createActionTaken.usedProducts = createUsedProducts.value;
 
         await actionTakenService.addActionTaken(createActionTaken);
-        toast.add({ severity: 'success', summary: 'Başarılı', detail: 'Alınan aksiyon başarıyla eklendi.', life: 3000 });
+        toast.add({ severity: 'success', summary: properties.t('success'), detail: properties.t('add_success'), life: 3000 });
 
         await $router.push('/action-taken/');
     } catch (error) {
@@ -192,16 +195,15 @@ function addUsedProductToList() {
 </script>
 
 <template>
-    <div class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Tarla İşlemleri Ekleme</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button label="Kaydet" icon="pi pi-check" class="mb-4" severity="success" :loading="loading"
-                    @click="confirmAddActionTaken()" />
-            </div>
+    <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">Tarla İşlemleri Ekleme</h1>
+            <Button label="Kaydet" icon="pi pi-check" severity="success" rounded :loading="loading"
+                @click="confirmAddActionTaken()" />
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6 mb">
-            <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="field" inputId="field" :options="fields" class="w-full" optionLabel="name"
                         :virtualScrollerOptions="{
@@ -209,9 +211,8 @@ function addUsedProductToList() {
                             lazy: true,
                             onLazyLoad: onFieldScroll
                         }" :filter="true" filterPlaceholder="Tarla ara..." @filter="onFieldFilter">
-
                         <template #footer>
-                            <div class="p-3">
+                            <div class="p-3 border-t border-gray-100">
                                 <Button label="Tarla Ekle" fluid severity="secondary" variant="text" size="small"
                                     icon="pi pi-plus" @click="$router.push('/field/create')" />
                             </div>
@@ -220,7 +221,8 @@ function addUsedProductToList() {
                     <label for="field">Tarla</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="season" inputId="season" :options="seasons" class="w-full" optionLabel="name"
                         :virtualScrollerOptions="{
@@ -228,9 +230,8 @@ function addUsedProductToList() {
                             lazy: true,
                             onLazyLoad: onSeasonScroll
                         }" :filter="true" filterPlaceholder="Sezon ara..." @filter="onSeasonFilter">
-
                         <template #footer>
-                            <div class="p-3">
+                            <div class="p-3 border-t border-gray-100">
                                 <Button label="Yeni Sezon" fluid severity="secondary" variant="text" size="small"
                                     icon="pi pi-plus" @click="createNewSeason()" />
                             </div>
@@ -239,14 +240,16 @@ function addUsedProductToList() {
                     <label for="season">Sezon</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="process" inputId="process" :options="Process.values()" optionLabel="label"
                         class="w-full" />
                     <label for="process">İşlem Tipi</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <DatePicker id="actionTakenDate" v-model="createActionTaken.date" class="w-full" showIcon
                         dateFormat="dd/mm/yy" />
@@ -254,95 +257,98 @@ function addUsedProductToList() {
                 </FloatLabel>
             </div>
         </div>
-        <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <InputNumber v-model="createActionTaken.cost" inputId="currency-us" mode="currency" currency="TRY"
-                        locale="en-TR" fluid />
+                        locale="en-TR" fluid class="w-full" />
                     <label for="actionTakenCost">Diğer Maliyet</label>
                 </FloatLabel>
             </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 md:mt-5">
+
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <Textarea id="actionTakenComment" v-model="createActionTaken.comment" rows="5" cols="50"
+                    <Textarea id="actionTakenComment" v-model="createActionTaken.comment" rows="3" class="w-full"
                         style="resize: none" />
                     <label for="actionTakenComment">Not</label>
                 </FloatLabel>
             </div>
         </div>
-        <div class="grid md:grid-cols-6 mt-10">
-            <div class="md:col-span-5 bg-zinc-800 p-3">
 
-                <Accordion value="0">
-                    <AccordionPanel value="Kullanılan Ürünler" key="usedProducts">
-                        <AccordionHeader>Kullanılan Ürünler</AccordionHeader>
-                        <AccordionContent>
-                            <DataTable :value="createUsedProducts" stripedRows :loading="loading">
+        <div class="mt-8">
+            <Accordion value="0">
+                <AccordionPanel value="0">
+                    <AccordionHeader>
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-box text-emerald-600"></i>
+                            <span class="font-bold">Kullanılan Ürünler</span>
+                        </div>
+                    </AccordionHeader>
+                    <AccordionContent>
+                        <div class="overflow-x-auto">
+                            <DataTable :value="createUsedProducts" stripedRows :loading="loading"
+                                class="p-datatable-sm">
                                 <Column field="productTypeName" header="Kullanılan Ürün">
                                     <template #body="{ data }">
-                                        {{ data.productTypeName }}
+                                        <span class="font-medium">{{ data.productTypeName }}</span>
                                     </template>
                                     <template #footer>
-                                        <FloatLabel variant="on">
-                                            <Select v-model="productType" inputId="productType" :options="productTypes"
-                                                class="w-full" :virtualScrollerOptions="{
-                                                    itemSize: 38,
-                                                    lazy: true,
-                                                    onLazyLoad: onProductTypeScroll
-                                                }" :filter="true" filterPlaceholder="Ürün ara..."
-                                                @filter="onProductTypeFilter">
-                                                <template #value="{ value }">
-                                                    <span v-if="value">
-                                                        {{ value.name }} ({{ value.totalAmount }})
-                                                    </span>
-                                                </template>
-                                                <template #option="{ option }">
-                                                    <div class="flex justify-between w-full">
-                                                        <span>{{ option.name }}</span>
-                                                        <span class="text-sm text-gray-500">
-                                                            ({{ Util.formatQuantity(option.totalAmount) }} {{
-                                                                Unit.getUnitByKey(option.unit)?.label }})
+                                        <div class="mt-2">
+                                            <FloatLabel variant="on">
+                                                <Select v-model="productType" inputId="productType"
+                                                    :options="productTypes" class="w-full" :virtualScrollerOptions="{
+                                                        itemSize: 38,
+                                                        lazy: true,
+                                                        onLazyLoad: onProductTypeScroll
+                                                    }" :filter="true" filterPlaceholder="Ürün ara..."
+                                                    @filter="onProductTypeFilter">
+                                                    <template #value="{ value }">
+                                                        <span v-if="value">
+                                                            {{ value.name }} ({{ value.totalAmount }})
                                                         </span>
-                                                    </div>
-                                                </template>
-                                            </Select>
-                                            <label for="productType">Kullanılan Ürün</label>
-                                        </FloatLabel>
+                                                    </template>
+                                                    <template #option="{ option }">
+                                                        <span>{{ option.name }} ({{ option.totalAmount }} {{
+                                                            Unit.getUnitByKey(option.unit)?.label }})</span>
+                                                    </template>
+                                                </Select>
+                                                <label for="productType">Ürün Seçin</label>
+                                            </FloatLabel>
+                                        </div>
                                     </template>
-
                                 </Column>
-                                <Column field="quantity" header="Miktar">
+                                <Column field="amount" header="Miktar">
                                     <template #body="{ data }">
-                                        {{ Util.formatQuantity(data.amount, Unit.getUnitByKey(data.unit)?.label) }}
+                                        {{ Util.formatQuantity(data.amount) }}
                                     </template>
                                     <template #footer>
-                                        <FloatLabel variant="on">
-                                            <InputNumber v-model="usedProductAmount" mode="decimal" locale="tr-TR"
-                                                :minFractionDigits="2" :maxFractionDigits="2" :useGrouping="true"
-                                                :suffix="productType?.unit
-                                                    ? ` ${Unit.getUnitByKey(productType.unit)?.label}`
-                                                    : ''" fluid />
-                                            <label>Miktar</label>
-                                        </FloatLabel>
+                                        <div class="mt-2">
+                                            <FloatLabel variant="on">
+                                                <InputNumber v-model="usedProductAmount" inputId="usedProductAmount"
+                                                    class="w-full" :maxFractionDigits="2" />
+                                                <label for="usedProductAmount">Miktar</label>
+                                            </FloatLabel>
+                                        </div>
                                     </template>
                                 </Column>
-                                <Column field="action" header="Aksiyon">
-                                    <template #footer>
-                                        <Button icon="pi pi-plus" severity="success"
-                                            @click="addUsedProductToList()"></Button>
+                                <Column class="w-24">
+                                    <template #body="{ data }">
+                                        <Button icon="pi pi-times" severity="danger" variant="text" rounded
+                                            @click="removeUsedProductFromList(data)" />
                                     </template>
-                                    <template #body="{ data }" :loading="loading">
-                                        <Button icon="pi pi-trash" severity="danger"
-                                            @click="removeUsedProductFromList(data)" rounded></Button>
+                                    <template #footer>
+                                        <div class="mt-2 flex justify-center">
+                                            <Button icon="pi pi-plus" severity="success" rounded
+                                                @click="addUsedProductToList()" />
+                                        </div>
                                     </template>
                                 </Column>
                             </DataTable>
-                        </AccordionContent>
-                    </AccordionPanel>
-                </Accordion>
-
-            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionPanel>
+            </Accordion>
         </div>
-
     </div>
 </template>

@@ -9,6 +9,5 @@ export interface IEquipmentService {
     getEquipmentTypes(): EquipmentType[];
     addEquipment(equipment: Equipment): Promise<AxiosResponse<any, any>>;
     getEquipment(id: string): Promise<Equipment>;
-    getEquipmentTypeByKey(key: string): EquipmentType | undefined;
     updateEquipment(id: string, equipment: Equipment): Promise<AxiosResponse<any, any>>;
 }

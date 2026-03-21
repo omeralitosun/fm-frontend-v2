@@ -198,87 +198,85 @@ const setChartData = () => {
 </script>
 
 <template>
-    <div v-if="field" class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Tarla Detay</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button v-if="!isEditable" label="Düzenle" icon="pi pi-pencil" class="mb-4 ml-2" severity="info"
-                    :loading="loading" @click="confirmEditField()" />
-                <Button v-if="!isEditable" label="Sil" icon="pi pi-trash" class="mb-4 ml-2" severity="danger"
-                    :loading="loading" @click="confirmDelete(id)" />
-                <Button v-if="isEditable" label="Kaydet" icon="pi pi-check" class="mb-4 ml-2" severity="success"
-                    :loading="loading" @click="confirmUpdateField(id)" />
-                <Button v-if="isEditable" label="Vazgeç" icon="pi pi-times" class="mb-4 ml-2" severity="warn"
-                    :loading="loading" @click="confirmCancelEdit()" />
+    <div v-if="field" class="space-y-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+            <h1 class="text-2xl font-bold">Tarla Detay</h1>
+            <div class="flex flex-wrap gap-2">
+                <template v-if="!isEditable">
+                    <Button label="Düzenle" icon="pi pi-pencil" severity="info" rounded
+                        :loading="loading" @click="confirmEditField()" />
+                    <Button label="Sil" icon="pi pi-trash" severity="danger" rounded
+                        :loading="loading" @click="confirmDelete(id)" />
+                </template>
+                <template v-else>
+                    <Button label="Kaydet" icon="pi pi-check" severity="success" rounded
+                        :loading="loading" @click="confirmUpdateField(id)" />
+                    <Button label="Vazgeç" icon="pi pi-times" severity="warn" rounded
+                        :loading="loading" @click="confirmCancelEdit()" />
+                </template>
             </div>
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 mb-5 ">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <InputText id="fieldName" v-model='field.name' class="w-full"
-                        :style="{ color: !isEditable ? 'oklch(69.6% 0.17 162.48)' : '' }" :disabled="!isEditable" />
+                        :class="{ 'font-bold text-emerald-600 bg-emerald-50/50': !isEditable }" :disabled="!isEditable" />
                     <label for="fieldName">Tarla Adı</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
-                    <InputText v-if="!isEditable" id="fieldDecare" v-model="(field.decare as unknown as string)"
-                        class="w-full" style="color: oklch(69.6% 0.17 162.48);" :disabled="!isEditable" />
-                    <InputNumber v-if="isEditable" id="fieldDecare" v-model="field.decare" class="w-full"
-                        :maxFractionDigits="1" :minFractionDigits="1" :min="0" />
+                    <InputNumber id="fieldDecare" v-model='field.decare' class="w-full"
+                        :class="{ 'font-bold text-emerald-600 bg-emerald-50/50': !isEditable }" :disabled="!isEditable" />
                     <label for="fieldDecare">Dönüm</label>
                 </FloatLabel>
             </div>
         </div>
-        <div v-if="!isEditable" class="grid md:grid-cols-6 mt-10">
-            <div class="md:col-span-5 bg-zinc-800 p-3 rounded-xl">
-                <div class="w-full md:w-52 mb-5 ">
-                    <FloatLabel variant="on">
-                        <Select v-model="season" inputId="equipment" :options="getAllSeasonDto?.seasons"
-                            optionLabel="name" class="w-full" @change="handleSeasonChange">
-                            <template #footer>
-                                <div class="p-3">
-                                    <Button label="Yeni Sezon" fluid severity="secondary" variant="text" size="small"
-                                        icon="pi pi-plus" @click="createNewSeason()" />
-                                </div>
-                            </template>
-                        </Select>
-                        <label for="equipment">Sezon</label>
-                    </FloatLabel>
-                </div>
-                <div v-if="season" class="grid mt-10">
-                    <div class="md:col-span-2">
-                        <Accordion value="0">
-                            <AccordionPanel value="Alınan Aksiyon" key="actionTaken">
-                                <AccordionHeader>Özet</AccordionHeader>
-                                <AccordionContent>
-                                    <div class="flex flex-col md:flex-row gap-4 mb">
-                                        <!-- Şimdilik kapalı, ileride açılabilir
-                                        <div class="w-full md:flex-1">
-                                            <Chart type="polarArea" :data="chartData"
-                                                class="w-full bg-amber-50" />
-                                        </div>
-                                        -->
-                                        <div class="w-full md:flex-2">
-                                            <SummaryView :fieldId="id" :seasonId="season?.id" />
-                                        </div>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionPanel>
-                        </Accordion>
+
+        <div v-if="!isEditable" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl border border-gray-600">
+                    <span class="font-bold shrink-0">Sezon Seçimi:</span>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <Select v-model="season" :options="getAllSeasonDto?.seasons" optionLabel="name"
+                            placeholder="Sezon Seçin" class="w-full sm:w-48" @change="handleSeasonChange" />
+                        <Button icon="pi pi-plus" severity="secondary" rounded text @click="createNewSeason()" />
                     </div>
                 </div>
-                <div v-if="season" class="grid mt-10">
-                    <div class="md:col-span-5">
-                        <Accordion value="0">
-                            <AccordionPanel value="Alınan Aksiyon" key="actionTaken">
-                                <AccordionHeader>Alınan Aksiyon</AccordionHeader>
-                                <AccordionContent>
-                                    <ListActionTakenView :fieldId="id" :seasonId="season?.id" />
-                                </AccordionContent>
-                            </AccordionPanel>
-                        </Accordion>
-                    </div>
+
+                <Accordion v-if="season" value="0">
+                    <AccordionPanel value="0">
+                        <AccordionHeader>
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-list text-emerald-600"></i>
+                                <span class="font-bold">Yapılan İşlemler</span>
+                            </div>
+                        </AccordionHeader>
+                        <AccordionContent>
+                            <div class="overflow-x-auto">
+                                <ListActionTakenView :fieldId="id" :seasonId="season?.id" />
+                            </div>
+                        </AccordionContent>
+                    </AccordionPanel>
+                    <AccordionPanel value="1">
+                        <AccordionHeader>
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-chart-bar text-emerald-600"></i>
+                                <span class="font-bold">Sezon Özeti</span>
+                            </div>
+                        </AccordionHeader>
+                        <AccordionContent>
+                            <SummaryView :fieldId="id" :seasonId="season?.id" />
+                        </AccordionContent>
+                    </AccordionPanel>
+                </Accordion>
+            </div>
+
+            <div v-if="season" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
+                <h3 class="text-lg font-bold mb-6 w-full text-left text-gray-800">Maliyet Dağılımı</h3>
+                <div class="w-full max-w-[300px]">
+                    <Chart type="doughnut" :data="chartData" class="w-full" />
                 </div>
             </div>
         </div>

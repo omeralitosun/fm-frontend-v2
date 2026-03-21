@@ -1,54 +1,43 @@
 import { Season } from "@/model/season/Season";
 import type { ISeasonService } from "../ISeasonService";
-import axios from "axios";
+import api from "../api";
 import { Service } from "typedi";
 import { CreateSeason } from "@/model/season/CreateSeason";
 import { GetAllSeasonDto } from "@/model/dto/GetAllSeasonDto";
 
 @Service()
 export class SeasonService implements ISeasonService {
-
-    apiUrl = import.meta.env.VITE_SERVICE_URL;
-    apiFieldURL = this.apiUrl + "/api/v1/season"
+    private readonly apiSeasonURL = "/api/v1/season";
 
     async createSeasonFromCurrentYearToNextYear(): Promise<Season> {
-        let pathVariable = this.apiFieldURL;
         const createSeason = new CreateSeason();
-
         createSeason.startYear = new Date().getFullYear();
         createSeason.endYear = createSeason.startYear + 1;
 
-        const response = await axios.post(pathVariable, createSeason);
-
-        const season = new Season();
-
-        season.id = response.data.id;
-        season.name = response.data.startYear + " - " + response.data.endYear;
-        season.startYear = response.data.startYear;
-        season.endYear = response.data.endYear;
-
-        return season;
+        const response = await api.post(this.apiSeasonURL, createSeason);
+        return this.mapToSeason(response.data);
     }
 
     async getAllSeasons(page: number, rows: number): Promise<GetAllSeasonDto> {
-        let pathVariable = this.apiFieldURL;
-        const response = await axios.get(pathVariable + "?page=" + page + "&rows=" + rows);
-
-
-        const getAllSeasonDto = new GetAllSeasonDto();
-        getAllSeasonDto.seasons = response.data.seasons.map((item: any) => {
-            const season = new Season();
-
-            season.id = item.id;
-            season.name = item.startYear + " - " + item.endYear;
-            season.startYear = item.startYear;
-            season.endYear = item.endYear;
-
-            return season;
+        const response = await api.get(this.apiSeasonURL, {
+            params: { page, rows }
         });
-
-        getAllSeasonDto.totalElements = response.data.totalElements;
-        return getAllSeasonDto;
+        return this.mapToGetAllSeasonDto(response.data);
     }
 
+    private mapToGetAllSeasonDto(data: any): GetAllSeasonDto {
+        const dto = new GetAllSeasonDto();
+        dto.totalElements = data.totalElements;
+        dto.seasons = data.seasons.map((item: any) => this.mapToSeason(item));
+        return dto;
+    }
+
+    private mapToSeason(item: any): Season {
+        const season = new Season();
+        season.id = item.id;
+        season.name = `${item.startYear} - ${item.endYear}`;
+        season.startYear = item.startYear;
+        season.endYear = item.endYear;
+        return season;
+    }
 }

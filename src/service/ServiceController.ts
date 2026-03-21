@@ -19,6 +19,8 @@ import { SummaryService } from "./impl/SummaryService";
 import type { ISummaryService } from "./ISummaryService";
 import type { IHarvestService } from "./IHarvestService";
 import { HarvestService } from "./impl/HarvestService";
+import type { IUsedProductService } from "./IUsedProductService";
+import { UsedProductService } from "./impl/UsedProductService";
 
 export class ServiceController {
 
@@ -60,5 +62,9 @@ export class ServiceController {
 
     static getHarvestService() {
         return Container.get<IHarvestService>(HarvestService);
+    }
+
+    static getUsedProductService() {
+        return Container.get<IUsedProductService>(UsedProductService);
     }
 }

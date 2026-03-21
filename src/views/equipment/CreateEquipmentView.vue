@@ -46,22 +46,21 @@ async function confirmAddEquipment() {
 </script>
 
 <template>
-    <div class="w-full md:m-20">
-        <div class="flex mb-10">
-            <h1 class="text-xl">Yeni Ekipman</h1>
-            <div class="right-0 mr-10 absolute">
-                <Button label="Kaydet" icon="pi pi-check" class="mb-4" severity="success" :loading="loading"
-                    @click="confirmAddEquipment()" />
-            </div>
+    <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">Yeni Ekipman</h1>
+            <Button label="Kaydet" icon="pi pi-check" severity="success" rounded :loading="loading"
+                @click="confirmAddEquipment()" />
         </div>
-        <div class="grid grid-flow-row md:grid-cols-6">
-            <div class="w-full md:w-52 mb-5">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <InputText id="equipmentName" v-model="equipmentName" class="w-full" />
                     <label for="equipmentName">Ekipman Adı</label>
                 </FloatLabel>
             </div>
-            <div class="w-full md:w-52 mb-5">
+            <div class="flex flex-col gap-2">
                 <FloatLabel variant="on">
                     <Select v-model="equipmentType" inputId="equipmentType"
                         :options="equipmentService.getEquipmentTypes()" optionLabel="label" class="w-full" />

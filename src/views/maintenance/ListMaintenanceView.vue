@@ -85,35 +85,49 @@ const confirmDelete = (id: string) => {
 </script>
 
 <template>
-    <div>
-        <div>
-            <Button label="Yeni Ekipman Bakımı" icon="pi pi-plus" class="mb-4" severity="success"
+    <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+            <h1 class="text-2xl font-bold">{{ properties.t('maintenanceType') }}</h1>
+            <Button label="Yeni Ekipman Bakımı" icon="pi pi-plus" severity="success" rounded
                 @click="$router.push('/maintenance/create')" />
-            <DataTable :value="getAllMaintenanceDto?.maintenances" stripedRows :loading="loading">
+        </div>
+
+        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-100 bg-white">
+            <DataTable :value="getAllMaintenanceDto?.maintenances" stripedRows :loading="loading" class="p-datatable-sm">
                 <Column field="equipment" :header="properties.t('equipment')">
                     <template #body="{ data }">
-                        <a :href="`/equipment/${data.equipment.id}`" class="text-emerald-500">{{
-                            data.equipment.name }}</a>
+                        <a :href="`/equipment/${data.equipment.id}`" class="text-emerald-600 font-medium hover:underline">
+                            {{ data.equipment.name }}
+                        </a>
                     </template>
                 </Column>
                 <Column field="maintenanceType" :header="properties.t('maintenanceType')"></Column>
                 <Column field="cost" :header="properties.t('cost')">
                     <template #body="slotProps">
-                        {{ Util.formatCurrency(slotProps.data.cost, 'tr') }}
+                        <span class="font-semibold">
+                            {{ Util.formatCurrency(slotProps.data.cost, 'tr') }}
+                        </span>
                     </template>
                 </Column>
                 <Column field="date" :header="properties.t('date')">
                     <template #body="{ data }">
-                        {{ Util.formatDate(data.date) }}
+                        <span class="">
+                            {{ Util.formatDate(data.date) }}
+                        </span>
                     </template>
                 </Column>
-                <Column class="w-29 !text-end" :header="properties.t('action')">
-                    <template #body="{ data }" :loading="loading">                   
-                        <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)" rounded></Button>
+                <Column class="w-32 !text-end" :header="properties.t('action')">
+                    <template #body="{ data }" :loading="loading">
+                        <div class="flex gap-2 justify-end">
+                            <Button icon="pi pi-trash" severity="danger" @click="confirmDelete(data.id)"
+                                rounded size="small"></Button>
+                        </div>
                     </template>
                 </Column>
             </DataTable>
-            <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllMaintenanceDto?.totalElements || 0" :rowsPerPageOptions="[10, 20, 30]" />
         </div>
+
+        <Paginator :rows="rows" @page="onPageChange" :totalRecords="getAllMaintenanceDto?.totalElements"
+            :rowsPerPageOptions="[10, 20, 30]" class="mt-4" />
     </div>
 </template>

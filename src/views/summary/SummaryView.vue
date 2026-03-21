@@ -33,50 +33,69 @@ async function fetchSummary() {
 </script>
 
 <template>
-    <div class="p-4">
-        <h1 class="text-2xl font-bold mb-4">Özet</h1>
-        <div v-if="summary">
-            <h2 class="text-xl font-semibold mb-2">Yapılan İşlemler</h2>
-            <table class="w-full border-collapse mb-6">
-                <thead>
-                    <tr>
-                        <th class="border p-2 text-left">İşlem</th>
-                        <th class="border p-2 text-right">Dekar Başına Maliyet (TL/da)</th>
-                        <th class="border p-2 text-right">Toplam Maliyet</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="action in summary.actionTakens">
-                        <td class="border p-2">{{ action.process }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatCurrency(action.costPerDecare, 'tr') }} </td>
-                        <td class="border p-2 text-right">{{  Util.formatCurrency(action.totalCost, 'tr') }} TL</td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="space-y-8">
+        <div v-if="summary" class="space-y-8">
+            <!-- İşlemler Bölümü -->
+            <section>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="pi pi-cog text-emerald-600 font-bold"></i>
+                    <h2 class="text-xl font-bold">Yapılan İşlemler</h2>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+                    <table class="w-full border-collapse bg-white">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">İşlem</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Maliyet (TL/da)</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr v-for="action in summary.actionTakens" :key="action.process" class="hover:bg-gray-50/50 transition-colors">
+                                <td class="p-4 text-sm font-medium text-gray-700">{{ action.process }}</td>
+                                <td class="p-4 text-sm text-right text-gray-600 font-mono">{{ Util.formatCurrency(action.costPerDecare, 'tr') }}</td>
+                                <td class="p-4 text-sm text-right font-bold text-emerald-700">{{ Util.formatCurrency(action.totalCost, 'tr') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            <h2 class="text-xl font-semibold mb-2">Hasatlar</h2>
-            <table class="w-full border-collapse">
-                <thead>
-                    <tr>
-                        <th class="border p-2 text-left">Ürün Türü</th>
-                        <th class="border p-2 text-right">Toplam Miktar (kg)</th>
-                        <th class="border p-2 text-right">Dekar Başına Miktar (kg/da)</th>
-                        <th class="border p-2 text-right">Ortalama Birim Fiyat (TL/kg)</th>
-                        <th class="border p-2 text-right">Dekar Başına Gelir (TL/da)</th>
-                        <th class="border p-2 text-right">Tahmini Toplam Gelir (TL)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="harvest in summary.harvests">
-                        <td class="border p-2">{{ harvest.productName }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatQuantity(harvest.totalAmount) }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatQuantity(harvest.amountPerDecare) }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatCurrency(harvest.averageUnitPrice, 'tr') }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatCurrency(harvest.averageUnitPrice * harvest.amountPerDecare, 'tr') }}</td>
-                        <td class="border p-2 text-right">{{ Util.formatCurrency(harvest.totalIncome, 'tr') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- Hasatlar Bölümü -->
+            <section>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="pi pi-box text-emerald-600 font-bold"></i>
+                    <h2 class="text-xl font-bold">Hasatlar</h2>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+                    <table class="w-full border-collapse bg-white text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ürün</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Toplam</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Verim (kg/da)</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Birim Fiyat</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Gelir (TL/da)</th>
+                                <th class="p-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Toplam Gelir</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr v-for="harvest in summary.harvests" :key="harvest.productName" class="hover:bg-gray-50/50 transition-colors">
+                                <td class="p-4 font-bold text-gray-800">{{ harvest.productName }}</td>
+                                <td class="p-4 text-right text-gray-600">{{ Util.formatQuantity(harvest.totalAmount) }}</td>
+                                <td class="p-4 text-right text-gray-600 font-semibold">{{ Util.formatQuantity(harvest.amountPerDecare) }}</td>
+                                <td class="p-4 text-right text-gray-600">{{ Util.formatCurrency(harvest.averageUnitPrice, 'tr') }}</td>
+                                <td class="p-4 text-right text-gray-600 italic">{{ Util.formatCurrency(harvest.averageUnitPrice * harvest.amountPerDecare, 'tr') }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-700">{{ Util.formatCurrency(harvest.totalIncome, 'tr') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div v-else class="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+            <i class="pi pi-info-circle text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-500 font-medium text-center">Bu sezon için henüz veri bulunmamaktadır.</p>
         </div>
     </div>
 </template>

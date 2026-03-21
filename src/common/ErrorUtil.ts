@@ -1,14 +1,13 @@
-import App from "@/App.vue";
 import { AppError } from "@/errors/AppError";
 import { BusinessError } from "@/errors/BusinessError";
 import { SystemError } from "@/errors/SystemError";
-import { useToast } from "primevue/usetoast";
+import i18n from "@/i18n";
 
 export class ErrorUtil {
     
     private static getErrorMessage(errorResponse: any): { summary: string; detail: string } {
-        let summaryMessage = "Hata";
-        let detailMessage = "Beklenmeyen bir hata oluştu.";
+        let summaryMessage = i18n.global.t('error');
+        let detailMessage = i18n.global.t('unexpected_error');
         if (errorResponse && errorResponse.data && errorResponse.data.type && errorResponse.data.message) {
             summaryMessage = errorResponse.data.type || summaryMessage;
             detailMessage = errorResponse.data.message || detailMessage;
